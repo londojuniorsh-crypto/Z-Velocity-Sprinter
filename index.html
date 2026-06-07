@@ -1,0 +1,876 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Z-Velocity Sprinter | PlayNova Studios</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;700;900&family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --blue-deep:   #020b1a;
+      --blue-dark:   #041227;
+      --blue-mid:    #0a2a5e;
+      --blue-core:   #1054c8;
+      --blue-glow:   #2979ff;
+      --blue-bright: #4fc3f7;
+      --blue-ice:    #b3e5fc;
+      --gold:        #ffd740;
+      --white:       #e8f4fd;
+      --text-dim:    #7aa5c9;
+      --border:      rgba(41,121,255,0.25);
+    }
+
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--blue-deep);
+      color: var(--white);
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 17px;
+      overflow-x: hidden;
+    }
+
+    /* ─── STARFIELD ─────────────────────────────────────── */
+    #stars {
+      position: fixed; inset: 0; z-index: 0;
+      background: radial-gradient(ellipse at 60% 30%, #071e4a 0%, var(--blue-deep) 70%);
+      pointer-events: none;
+    }
+    #stars::before, #stars::after {
+      content: '';
+      position: absolute; inset: 0;
+      background-image:
+        radial-gradient(1px 1px at 10% 20%, #4fc3f7 0%, transparent 100%),
+        radial-gradient(1px 1px at 30% 60%, #fff 0%, transparent 100%),
+        radial-gradient(1.5px 1.5px at 55% 10%, #2979ff 0%, transparent 100%),
+        radial-gradient(1px 1px at 70% 80%, #fff 0%, transparent 100%),
+        radial-gradient(1px 1px at 85% 35%, #4fc3f7 0%, transparent 100%),
+        radial-gradient(1px 1px at 92% 65%, #fff 0%, transparent 100%),
+        radial-gradient(1px 1px at 15% 85%, #2979ff 0%, transparent 100%),
+        radial-gradient(1px 1px at 42% 40%, #fff 0%, transparent 100%),
+        radial-gradient(1.5px 1.5px at 78% 15%, #4fc3f7 0%, transparent 100%),
+        radial-gradient(1px 1px at 5%  50%, #fff 0%, transparent 100%);
+      background-size: 600px 600px;
+      animation: drift 40s linear infinite;
+      opacity: .7;
+    }
+    #stars::after {
+      background-size: 900px 900px;
+      animation-duration: 70s;
+      animation-direction: reverse;
+      opacity: .4;
+    }
+    @keyframes drift { from { transform: translateY(0); } to { transform: translateY(-600px); } }
+
+    /* ─── NAVBAR ─────────────────────────────────────────── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 5%;
+      height: 70px;
+      background: rgba(2,11,26,.85);
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(12px);
+    }
+    .nav-logo {
+      font-family: 'Orbitron', sans-serif;
+      font-weight: 900; font-size: 1rem;
+      letter-spacing: 2px; color: var(--blue-bright);
+      text-decoration: none;
+    }
+    .nav-logo span { color: var(--gold); }
+    .nav-links { display: flex; gap: 2rem; list-style: none; }
+    .nav-links a {
+      color: var(--text-dim); text-decoration: none;
+      font-family: 'Exo 2', sans-serif; font-size: .9rem; font-weight: 600;
+      letter-spacing: 1px; text-transform: uppercase;
+      transition: color .25s;
+    }
+    .nav-links a:hover { color: var(--blue-bright); }
+    .nav-cta {
+      background: var(--blue-core);
+      color: #fff !important;
+      padding: .45rem 1.2rem;
+      border-radius: 4px;
+      border: 1px solid var(--blue-glow) !important;
+      box-shadow: 0 0 12px rgba(41,121,255,.4);
+    }
+    .nav-cta:hover { background: var(--blue-glow) !important; color: #fff !important; }
+
+    /* ─── HERO ───────────────────────────────────────────── */
+    #hero {
+      position: relative; z-index: 1;
+      min-height: 100vh;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      text-align: center;
+      padding: 120px 5% 80px;
+      overflow: hidden;
+    }
+
+    /* animated speed lines */
+    .speed-lines {
+      position: absolute; inset: 0; pointer-events: none;
+      overflow: hidden;
+    }
+    .speed-lines span {
+      position: absolute; left: -100%; width: 100%; height: 1px;
+      background: linear-gradient(90deg, transparent, var(--blue-glow), transparent);
+      animation: speedLine 3s linear infinite;
+      opacity: 0;
+    }
+    .speed-lines span:nth-child(1)  { top: 18%; animation-delay: 0s;    animation-duration: 2.4s; }
+    .speed-lines span:nth-child(2)  { top: 32%; animation-delay: .6s;   animation-duration: 3s;   opacity-end: .3; }
+    .speed-lines span:nth-child(3)  { top: 55%; animation-delay: 1.2s;  animation-duration: 2.7s; }
+    .speed-lines span:nth-child(4)  { top: 70%; animation-delay: .3s;   animation-duration: 2.2s; }
+    .speed-lines span:nth-child(5)  { top: 85%; animation-delay: 1.8s;  animation-duration: 3.5s; }
+    @keyframes speedLine {
+      0%   { left: -100%; opacity: 0; }
+      10%  { opacity: .4; }
+      90%  { opacity: .4; }
+      100% { left: 100%; opacity: 0; }
+    }
+
+    .badge {
+      display: inline-block;
+      padding: .3rem 1rem;
+      border: 1px solid var(--blue-glow);
+      border-radius: 100px;
+      font-family: 'Exo 2', sans-serif; font-size: .75rem; font-weight: 700;
+      letter-spacing: 3px; text-transform: uppercase;
+      color: var(--blue-bright);
+      background: rgba(41,121,255,.08);
+      margin-bottom: 1.5rem;
+      animation: fadeUp .8s ease both;
+    }
+
+    h1 {
+      font-family: 'Orbitron', sans-serif;
+      font-size: clamp(2.8rem, 8vw, 6.5rem);
+      font-weight: 900;
+      line-height: .95;
+      text-transform: uppercase;
+      letter-spacing: -2px;
+      animation: fadeUp .9s .15s ease both;
+    }
+    h1 .line1 { display: block; color: var(--white); }
+    h1 .line2 {
+      display: block;
+      background: linear-gradient(90deg, var(--blue-glow), var(--blue-bright), var(--gold));
+      -webkit-background-clip: text; background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero-sub {
+      max-width: 560px; margin: 1.8rem auto 0;
+      font-size: 1.15rem; color: var(--text-dim); line-height: 1.7;
+      animation: fadeUp 1s .3s ease both;
+    }
+
+    .hero-btns {
+      display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center;
+      margin-top: 2.5rem;
+      animation: fadeUp 1s .45s ease both;
+    }
+    .btn {
+      display: inline-flex; align-items: center; gap: .5rem;
+      padding: .85rem 2rem;
+      border-radius: 6px;
+      font-family: 'Exo 2', sans-serif; font-size: .95rem; font-weight: 700;
+      letter-spacing: 1.5px; text-transform: uppercase;
+      text-decoration: none;
+      cursor: pointer; border: none;
+      transition: all .25s;
+    }
+    .btn-primary {
+      background: var(--blue-core);
+      color: #fff;
+      box-shadow: 0 0 24px rgba(41,121,255,.5), inset 0 1px 0 rgba(255,255,255,.1);
+      border: 1px solid var(--blue-glow);
+    }
+    .btn-primary:hover {
+      background: var(--blue-glow);
+      box-shadow: 0 0 40px rgba(41,121,255,.8);
+      transform: translateY(-2px);
+    }
+    .btn-secondary {
+      background: transparent;
+      color: var(--blue-bright);
+      border: 1px solid var(--blue-glow);
+    }
+    .btn-secondary:hover {
+      background: rgba(41,121,255,.12);
+      transform: translateY(-2px);
+    }
+
+    .scroll-arrow {
+      position: absolute; bottom: 2.5rem; left: 50%;
+      transform: translateX(-50%);
+      animation: bounce 2s infinite;
+      color: var(--blue-glow); opacity: .6;
+      font-size: 1.5rem;
+    }
+    @keyframes bounce { 0%,100% { transform: translateX(-50%) translateY(0); } 50% { transform: translateX(-50%) translateY(8px); } }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* ─── SECTION BASE ───────────────────────────────────── */
+    section {
+      position: relative; z-index: 1;
+      padding: 100px 5%;
+    }
+    .section-label {
+      font-family: 'Exo 2', sans-serif; font-size: .75rem; font-weight: 700;
+      letter-spacing: 4px; text-transform: uppercase;
+      color: var(--blue-glow);
+      margin-bottom: .75rem;
+    }
+    .section-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: clamp(1.8rem, 4vw, 3rem);
+      font-weight: 900; line-height: 1.1;
+      margin-bottom: 1.2rem;
+    }
+    .section-title span {
+      background: linear-gradient(90deg, var(--blue-glow), var(--blue-bright));
+      -webkit-background-clip: text; background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .section-desc {
+      color: var(--text-dim); max-width: 600px;
+      line-height: 1.75; font-size: 1.05rem;
+    }
+    .divider {
+      width: 60px; height: 3px;
+      background: linear-gradient(90deg, var(--blue-glow), var(--blue-bright));
+      border-radius: 2px; margin: 1rem 0 2.5rem;
+    }
+
+    /* ─── FEATURES / STATS ───────────────────────────────── */
+    #features { background: linear-gradient(180deg, var(--blue-deep) 0%, var(--blue-dark) 100%); }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1.5rem;
+      margin-top: 3rem;
+    }
+    .feature-card {
+      background: rgba(10,42,94,.35);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 2rem;
+      transition: all .3s;
+      position: relative; overflow: hidden;
+    }
+    .feature-card::before {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(135deg, rgba(41,121,255,.07) 0%, transparent 60%);
+    }
+    .feature-card:hover {
+      border-color: var(--blue-glow);
+      transform: translateY(-4px);
+      box-shadow: 0 12px 40px rgba(41,121,255,.2);
+    }
+    .feat-icon {
+      font-size: 2rem; margin-bottom: 1rem;
+      display: inline-block;
+    }
+    .feat-title {
+      font-family: 'Exo 2', sans-serif; font-weight: 700;
+      font-size: 1.1rem; margin-bottom: .5rem;
+      color: var(--blue-bright);
+    }
+    .feat-desc { color: var(--text-dim); font-size: .95rem; line-height: 1.6; }
+
+    /* stats row */
+    .stats-row {
+      display: flex; flex-wrap: wrap; gap: 2rem;
+      margin-top: 4rem;
+      padding: 2.5rem;
+      background: rgba(10,42,94,.3);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+    }
+    .stat { flex: 1; min-width: 120px; text-align: center; }
+    .stat-num {
+      font-family: 'Orbitron', sans-serif; font-size: 2.5rem; font-weight: 900;
+      color: var(--blue-bright);
+    }
+    .stat-lbl { font-size: .85rem; color: var(--text-dim); margin-top: .2rem; }
+
+    /* ─── DOWNLOAD ───────────────────────────────────────── */
+    #download {
+      background: linear-gradient(135deg, var(--blue-dark) 0%, #041830 100%);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+    .download-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+      margin-top: 3rem;
+    }
+    @media (max-width: 720px) { .download-grid { grid-template-columns: 1fr; } }
+
+    .dl-card {
+      background: rgba(10,42,94,.4);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 2.5rem;
+      text-align: center;
+      transition: all .3s;
+      position: relative; overflow: hidden;
+    }
+    .dl-card::after {
+      content: '';
+      position: absolute; bottom: 0; left: 0; right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--blue-glow), var(--blue-bright));
+    }
+    .dl-card:hover {
+      border-color: var(--blue-glow);
+      box-shadow: 0 0 40px rgba(41,121,255,.2);
+      transform: translateY(-4px);
+    }
+    .dl-icon { font-size: 3.5rem; margin-bottom: 1rem; }
+    .dl-title {
+      font-family: 'Orbitron', sans-serif; font-weight: 700;
+      font-size: 1.3rem; margin-bottom: .6rem;
+    }
+    .dl-desc { color: var(--text-dim); font-size: .95rem; line-height: 1.6; margin-bottom: 1.8rem; }
+
+    /* APK upload slot */
+    .apk-slot {
+      border: 2px dashed var(--blue-glow);
+      border-radius: 8px;
+      padding: 1.2rem;
+      margin-bottom: 1.5rem;
+      background: rgba(41,121,255,.05);
+      font-size: .85rem; color: var(--text-dim);
+    }
+    .apk-slot strong { display: block; color: var(--blue-bright); margin-bottom: .3rem; }
+
+    /* ─── ABOUT US ───────────────────────────────────────── */
+    #about { background: var(--blue-deep); }
+    .about-wrap {
+      display: grid;
+      grid-template-columns: 1.1fr 1fr;
+      gap: 5rem; align-items: center;
+      margin-top: 3rem;
+    }
+    @media (max-width: 900px) { .about-wrap { grid-template-columns: 1fr; gap: 3rem; } }
+
+    .about-text p {
+      color: var(--text-dim); line-height: 1.8; margin-bottom: 1rem; font-size: 1.05rem;
+    }
+
+    /* team picture frame */
+    .team-photo-wrap {
+      position: relative;
+    }
+    .team-photo-frame {
+      width: 100%;
+      aspect-ratio: 4/3;
+      border-radius: 14px;
+      border: 2px solid var(--blue-glow);
+      background: rgba(10,42,94,.4);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 1rem;
+      box-shadow: 0 0 40px rgba(41,121,255,.2), inset 0 0 60px rgba(10,42,94,.5);
+      overflow: hidden;
+      position: relative;
+    }
+    .team-photo-frame img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      display: none; /* shown when src set */
+    }
+    .photo-placeholder {
+      text-align: center; padding: 2rem;
+    }
+    .photo-placeholder .ph-icon { font-size: 3rem; opacity: .4; margin-bottom: .5rem; }
+    .photo-placeholder p { color: var(--text-dim); font-size: .9rem; }
+    .photo-placeholder strong { color: var(--blue-bright); }
+
+    /* corner accents */
+    .team-photo-frame::before, .team-photo-frame::after {
+      content: ''; position: absolute;
+      width: 24px; height: 24px;
+      border-color: var(--gold);
+      border-style: solid;
+    }
+    .team-photo-frame::before { top: 10px; left: 10px; border-width: 2px 0 0 2px; }
+    .team-photo-frame::after  { bottom: 10px; right: 10px; border-width: 0 2px 2px 0; }
+
+    .team-label {
+      text-align: center; margin-top: 1rem;
+      font-family: 'Exo 2', sans-serif; font-weight: 600;
+      letter-spacing: 2px; font-size: .85rem;
+      color: var(--text-dim); text-transform: uppercase;
+    }
+    .team-label span { color: var(--gold); }
+
+    /* ─── GALLERY / SCREENSHOTS ──────────────────────────── */
+    #gallery { background: var(--blue-dark); border-top: 1px solid var(--border); }
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem; margin-top: 3rem;
+    }
+    @media (max-width: 700px) { .gallery-grid { grid-template-columns: 1fr 1fr; } }
+    .gallery-item {
+      aspect-ratio: 16/10;
+      border-radius: 8px;
+      background: rgba(10,42,94,.4);
+      border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.8rem; color: var(--blue-mid);
+      transition: all .3s;
+      position: relative; overflow: hidden;
+    }
+    .gallery-item:hover { border-color: var(--blue-glow); transform: scale(1.02); }
+    .gallery-item::before {
+      content: 'SCREENSHOT ' attr(data-n);
+      position: absolute; bottom: .5rem; left: 50%; transform: translateX(-50%);
+      font-family: 'Exo 2', sans-serif; font-size: .65rem; font-weight: 700;
+      letter-spacing: 2px; color: var(--text-dim);
+    }
+
+    /* ─── CONTACT ────────────────────────────────────────── */
+    #contact { background: var(--blue-deep); }
+    .contact-wrap {
+      display: grid; grid-template-columns: 1fr 1.4fr;
+      gap: 5rem; margin-top: 3rem;
+    }
+    @media (max-width: 900px) { .contact-wrap { grid-template-columns: 1fr; gap: 3rem; } }
+
+    .contact-info { display: flex; flex-direction: column; gap: 1.8rem; }
+    .ci-item { display: flex; align-items: flex-start; gap: 1rem; }
+    .ci-icon {
+      width: 44px; height: 44px; border-radius: 50%;
+      background: rgba(41,121,255,.12);
+      border: 1px solid var(--blue-glow);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem; flex-shrink: 0;
+    }
+    .ci-text strong { display: block; color: var(--blue-bright); font-family: 'Exo 2', sans-serif; font-weight: 700; margin-bottom: .2rem; }
+    .ci-text span { color: var(--text-dim); font-size: .95rem; }
+
+    .contact-form { display: flex; flex-direction: column; gap: 1.1rem; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    @media (max-width: 500px) { .form-row { grid-template-columns: 1fr; } }
+
+    .form-group { display: flex; flex-direction: column; gap: .4rem; }
+    .form-group label {
+      font-family: 'Exo 2', sans-serif; font-size: .8rem; font-weight: 700;
+      letter-spacing: 1px; text-transform: uppercase; color: var(--text-dim);
+    }
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+      background: rgba(10,42,94,.35);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: .8rem 1rem;
+      color: var(--white);
+      font-family: 'Rajdhani', sans-serif; font-size: 1rem;
+      outline: none; transition: border-color .2s, box-shadow .2s;
+    }
+    .form-group input:focus,
+    .form-group textarea:focus,
+    .form-group select:focus {
+      border-color: var(--blue-glow);
+      box-shadow: 0 0 0 3px rgba(41,121,255,.15);
+    }
+    .form-group textarea { resize: vertical; min-height: 130px; }
+
+    /* ─── FOOTER ─────────────────────────────────────────── */
+    footer {
+      position: relative; z-index: 1;
+      padding: 3rem 5%;
+      border-top: 1px solid var(--border);
+      background: var(--blue-dark);
+    }
+    .footer-inner {
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 1.5rem;
+    }
+    .footer-logo {
+      font-family: 'Orbitron', sans-serif; font-weight: 900;
+      font-size: 1.1rem; color: var(--blue-bright);
+    }
+    .footer-logo span { color: var(--gold); }
+    .footer-copy { color: var(--text-dim); font-size: .85rem; }
+    .footer-links { display: flex; gap: 1.5rem; }
+    .footer-links a {
+      color: var(--text-dim); text-decoration: none; font-size: .85rem;
+      transition: color .2s;
+    }
+    .footer-links a:hover { color: var(--blue-bright); }
+
+    /* ─── SCROLL REVEAL ──────────────────────────────────── */
+    .reveal { opacity: 0; transform: translateY(40px); transition: opacity .7s ease, transform .7s ease; }
+    .reveal.visible { opacity: 1; transform: none; }
+
+    /* ─── GLOW RINGS ─────────────────────────────────────── */
+    .glow-ring {
+      position: absolute; border-radius: 50%;
+      border: 1px solid rgba(41,121,255,.12);
+      animation: expand 4s linear infinite;
+      pointer-events: none;
+    }
+    @keyframes expand {
+      0%   { transform: scale(.8); opacity: .5; }
+      100% { transform: scale(1.8); opacity: 0; }
+    }
+  </style>
+</head>
+<body>
+
+<div id="stars"></div>
+
+<!-- NAVBAR -->
+<nav>
+  <a href="#hero" class="nav-logo">Z·VELOCITY <span>SPRINTER</span></a>
+  <ul class="nav-links">
+    <li><a href="#features">Game</a></li>
+    <li><a href="#download">Download</a></li>
+    <li><a href="#about">About</a></li>
+    <li><a href="#contact" class="nav-cta">Contact Us</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="speed-lines">
+    <span></span><span></span><span></span><span></span><span></span>
+  </div>
+  <!-- decorative glow rings -->
+  <div class="glow-ring" style="width:400px;height:400px;top:50%;left:50%;margin:-200px 0 0 -200px;animation-delay:0s;"></div>
+  <div class="glow-ring" style="width:600px;height:600px;top:50%;left:50%;margin:-300px 0 0 -300px;animation-delay:1.3s;"></div>
+  <div class="glow-ring" style="width:800px;height:800px;top:50%;left:50%;margin:-400px 0 0 -400px;animation-delay:2.6s;"></div>
+
+  <div class="badge">⚡ PlayNova Studios Presents</div>
+  <h1>
+    <span class="line1">Z-Velocity</span>
+    <span class="line2">Sprinter</span>
+  </h1>
+  <p class="hero-sub">
+    A high-octane board game experience where strategy meets speed. Race, outmanoeuvre, and dominate the track — available as a mobile app and playable online.
+  </p>
+  <div class="hero-btns">
+    <a href="#download" class="btn btn-primary">⬇ Download APK</a>
+    <a href="#download" class="btn btn-secondary">🌐 Play Online</a>
+  </div>
+  <div class="scroll-arrow">▼</div>
+</section>
+
+<!-- FEATURES -->
+<section id="features">
+  <div class="reveal">
+    <div class="section-label">🎮 The Game</div>
+    <h2 class="section-title">Built for <span>Speed &amp; Strategy</span></h2>
+    <div class="divider"></div>
+    <p class="section-desc">
+      Z-Velocity Sprinter combines the tactical depth of a classic board game with the adrenaline of a racing experience. Every move counts. Every second matters.
+    </p>
+  </div>
+
+  <div class="features-grid reveal">
+    <div class="feature-card">
+      <div class="feat-icon">🏎️</div>
+      <div class="feat-title">High-Speed Racing</div>
+      <p class="feat-desc">Navigate dynamic tracks with shifting obstacles and velocity-based mechanics that reward bold decisions.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feat-icon">🧠</div>
+      <div class="feat-title">Deep Strategy</div>
+      <p class="feat-desc">Plan your route, deploy power cards, and outthink your opponents in a game where every turn changes the race.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feat-icon">👥</div>
+      <div class="feat-title">Multiplayer Mayhem</div>
+      <p class="feat-desc">Play with 2–6 players locally or online. Compete, collaborate, and create unforgettable moments.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feat-icon">📱</div>
+      <div class="feat-title">Mobile &amp; Online</div>
+      <p class="feat-desc">Download the APK for offline play on Android, or jump straight into the browser for instant online action.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feat-icon">⚡</div>
+      <div class="feat-title">Z-Power Cards</div>
+      <p class="feat-desc">Unleash special ability cards to boost your speed, block rivals, or warp to a new position on the board.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feat-icon">🏆</div>
+      <div class="feat-title">Leaderboard System</div>
+      <p class="feat-desc">Track your wins, rank up, and prove you're the fastest sprinter in the Z-Velocity universe.</p>
+    </div>
+  </div>
+
+  <div class="stats-row reveal">
+    <div class="stat">
+      <div class="stat-num">2–6</div>
+      <div class="stat-lbl">Players</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">30+</div>
+      <div class="stat-lbl">Unique Cards</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">5</div>
+      <div class="stat-lbl">Race Tracks</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">∞</div>
+      <div class="stat-lbl">Replayability</div>
+    </div>
+  </div>
+</section>
+
+<!-- DOWNLOAD -->
+<section id="download">
+  <div class="reveal">
+    <div class="section-label">📥 Get the Game</div>
+    <h2 class="section-title">Play on <span>Any Platform</span></h2>
+    <div class="divider"></div>
+    <p class="section-desc">Choose how you want to experience Z-Velocity Sprinter — download the Android APK for offline play, or launch the browser version and race instantly.</p>
+  </div>
+
+  <div class="download-grid reveal">
+
+    <!-- APK DOWNLOAD -->
+    <div class="dl-card">
+      <div class="dl-icon">🤖</div>
+      <div class="dl-title">Android APK</div>
+      <p class="dl-desc">Install directly on your Android device and play anytime, anywhere — no internet required after install.</p>
+      <div class="apk-slot">
+        <strong>📁 APK File Slot</strong>
+        Replace the button href below with your APK download link or file path.<br>
+        e.g. <code>href="files/zvelocity-sprinter.apk"</code>
+      </div>
+      <a href="files/zvelocity-sprinter.apk" download class="btn btn-primary" style="width:100%;justify-content:center;">
+        ⬇ Download APK
+      </a>
+      <p style="margin-top:.8rem;font-size:.8rem;color:var(--text-dim);">Android 7.0+ · Enable "Unknown Sources" in settings</p>
+    </div>
+
+    <!-- PLAY ONLINE -->
+    <div class="dl-card">
+      <div class="dl-icon">🌐</div>
+      <div class="dl-title">Play Online</div>
+      <p class="dl-desc">No download needed. Launch the game directly in your browser and challenge players from anywhere in the world.</p>
+      <div class="apk-slot">
+        <strong>🔗 Online Game Link</strong>
+        Replace the button href below with your hosted game URL.<br>
+        e.g. <code>href="https://play.zvsprinter.com"</code>
+      </div>
+      <a href="game/index.html" class="btn btn-primary" style="width:100%;justify-content:center;background:linear-gradient(135deg,#0a2a5e,#1054c8);">
+        ▶ Launch Game
+      </a>
+      <p style="margin-top:.8rem;font-size:.8rem;color:var(--text-dim);">Works on Chrome, Firefox, Edge · No login required</p>
+    </div>
+
+  </div>
+</section>
+
+<!-- GALLERY -->
+<section id="gallery">
+  <div class="reveal">
+    <div class="section-label">🖼️ Screenshots</div>
+    <h2 class="section-title">See the <span>Action</span></h2>
+    <div class="divider"></div>
+    <p class="section-desc">Replace the placeholder boxes below with actual screenshots from the game by adding <code>&lt;img&gt;</code> tags inside each .gallery-item div.</p>
+  </div>
+  <div class="gallery-grid reveal">
+    <div class="gallery-item" data-n="1">🏎️</div>
+    <div class="gallery-item" data-n="2">🎴</div>
+    <div class="gallery-item" data-n="3">🗺️</div>
+    <div class="gallery-item" data-n="4">⚡</div>
+    <div class="gallery-item" data-n="5">🏆</div>
+    <div class="gallery-item" data-n="6">🎮</div>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="about-wrap">
+    <div class="about-text reveal">
+      <div class="section-label">🚀 About Us</div>
+      <h2 class="section-title">Meet <span>PlayNova Studios</span></h2>
+      <div class="divider"></div>
+      <p>
+        We are <strong style="color:var(--blue-bright)">PlayNova Studios</strong> — a passionate team of creators, designers, and developers united by one goal: to build games that push boundaries and ignite imagination.
+      </p>
+      <p>
+        Z-Velocity Sprinter was born from our love of high-speed competition and strategic gameplay. Every card, every track, and every mechanic has been crafted with care to deliver an experience that is fast, fun, and endlessly replayable.
+      </p>
+      <p>
+        We believe great games bring people together — whether around a table or across the globe. Our mission is to create worlds worth racing into.
+      </p>
+      <div style="margin-top:2rem;">
+        <a href="#contact" class="btn btn-primary" style="display:inline-flex;">💬 Get In Touch</a>
+      </div>
+    </div>
+
+    <!-- TEAM PHOTO -->
+    <div class="reveal">
+      <div class="team-photo-wrap">
+        <div class="team-photo-frame">
+          <!-- 
+            TO ADD YOUR TEAM PHOTO:
+            1. Save your image as "team.jpg" in the same folder as this HTML file
+            2. Remove the .photo-placeholder div below
+            3. Change the img display from 'none' to 'block'
+            OR simply replace src="" with your image path
+          -->
+          <img src="team.jpg" alt="PlayNova Studios Team" id="teamImg" />
+          <div class="photo-placeholder" id="teamPlaceholder">
+            <div class="ph-icon">📸</div>
+            <p><strong>Team Photo</strong><br>Add your team photo here by setting:<br><code>src="team.jpg"</code><br>on the &lt;img&gt; tag above</p>
+          </div>
+        </div>
+        <div class="team-label">The <span>PlayNova Studios</span> Team</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="reveal">
+    <div class="section-label">📬 Contact Us</div>
+    <h2 class="section-title">Let's <span>Connect</span></h2>
+    <div class="divider"></div>
+  </div>
+
+  <div class="contact-wrap">
+    <div class="contact-info reveal">
+      <div class="ci-item">
+        <div class="ci-icon">📧</div>
+        <div class="ci-text">
+          <strong>Email</strong>
+          <span>hello@playnovastudios.com</span>
+        </div>
+      </div>
+      <div class="ci-item">
+        <div class="ci-icon">🌍</div>
+        <div class="ci-text">
+          <strong>Location</strong>
+          <span>Namibia</span>
+        </div>
+      </div>
+      <div class="ci-item">
+        <div class="ci-icon">💬</div>
+        <div class="ci-text">
+          <strong>Social Media</strong>
+          <span>@PlayNovaStudios</span>
+        </div>
+      </div>
+      <div class="ci-item">
+        <div class="ci-icon">🎮</div>
+        <div class="ci-text">
+          <strong>Support</strong>
+          <span>support@playnovastudios.com</span>
+        </div>
+      </div>
+    </div>
+
+    <form class="contact-form reveal" onsubmit="handleForm(event)">
+      <div class="form-row">
+        <div class="form-group">
+          <label>Name</label>
+          <input type="text" placeholder="Your name" required />
+        </div>
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" placeholder="your@email.com" required />
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Subject</label>
+        <select>
+          <option>General Inquiry</option>
+          <option>Game Feedback</option>
+          <option>Bug Report</option>
+          <option>Partnership</option>
+          <option>Press / Media</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Message</label>
+        <textarea placeholder="Tell us what's on your mind..."></textarea>
+      </div>
+      <button type="submit" class="btn btn-primary" style="align-self:flex-start;">
+        🚀 Send Message
+      </button>
+      <div id="form-success" style="display:none;color:var(--blue-bright);font-weight:600;margin-top:.5rem;">
+        ✅ Message sent! We'll get back to you soon.
+      </div>
+    </form>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-logo">Z·VELOCITY <span>SPRINTER</span><br>
+      <small style="font-family:'Rajdhani',sans-serif;font-size:.7rem;font-weight:400;color:var(--text-dim);letter-spacing:1px;">by PlayNova Studios</small>
+    </div>
+    <div class="footer-copy">© 2026 PlayNova Studios. All rights reserved.</div>
+    <div class="footer-links">
+      <a href="#features">Game</a>
+      <a href="#download">Download</a>
+      <a href="#about">About</a>
+      <a href="#contact">Contact</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // ── Scroll reveal
+  const reveals = document.querySelectorAll('.reveal');
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); } });
+  }, { threshold: 0.12 });
+  reveals.forEach(el => io.observe(el));
+
+  // ── Form mock submit
+  function handleForm(e) {
+    e.preventDefault();
+    document.getElementById('form-success').style.display = 'block';
+    e.target.reset();
+  }
+
+  // ── Auto-show team photo if file exists
+  const teamImg = document.getElementById('teamImg');
+  const teamPlaceholder = document.getElementById('teamPlaceholder');
+  teamImg.onload = () => {
+    teamImg.style.display = 'block';
+    teamPlaceholder.style.display = 'none';
+  };
+  teamImg.onerror = () => {
+    teamImg.style.display = 'none';
+    teamPlaceholder.style.display = 'block';
+  };
+
+  // ── Smooth active nav highlight
+  const sections = document.querySelectorAll('section[id]');
+  const navLinks = document.querySelectorAll('.nav-links a');
+  window.addEventListener('scroll', () => {
+    let current = '';
+    sections.forEach(s => {
+      if (window.scrollY >= s.offsetTop - 100) current = s.id;
+    });
+    navLinks.forEach(a => {
+      a.style.color = a.getAttribute('href') === '#' + current ? 'var(--blue-bright)' : '';
+    });
+  });
+</script>
+</body>
+</html>
